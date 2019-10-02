@@ -1,6 +1,7 @@
 from pathlib import Path
 from PIL import Image, ExifTags
 from shutil import copy2
+from datetime import datetime
 
 def info(f):
     img = Image.open(f)
@@ -13,12 +14,11 @@ def info(f):
     return exif_data
 
 
-def get_folder(timestamp):
+def get_folder(timestamp, suffix):
     year = timestamp[:4]
     year_month = timestamp[:7].replace(':', '-')
-    return [year, year_month]
+    return [year, year_month + suffix]
 
-# TODO alert if already present
 def copy(filename, root_target, folder):
     target = Path(root_target) / folder[0]
     target.mkdir(exist_ok=True)
@@ -38,29 +38,33 @@ for k, v in ExifTags.TAGS.items():
     if v == 'DateTime':
         date_time_tag = k
 
-#root_source = 'F:/2012'
-root_source = 'temp/source'
+root_source = 'F:/Cloudstation/Pictures/2004'
+#root_source = 'temp/source'
+#root_target = 'F:/Photos'
 root_target = 'temp/target'
 
 num_copied = 0
 num_not_copied = 0
+num_no_exif = 0
 
 # for each file in the folder
 for filename in Path(root_source).glob('**/*.*'):
+    file_mod_date = datetime.fromtimestamp(filename.stat().st_mtime).isoformat()
     # check the image info
-    tags = info(filename)
-    
-    # report if cannot be done
-    # TODO
+    try:
+        tags = info(filename)
+    except:
+        tags = None
 
-    # get the datetimeoriginal (datetime if not present), report if neither present
-    # find the year/month
-    if date_time_orig_tag in tags:
-        folder = get_folder(tags[date_time_orig_tag])
+    if tags is None:
+        folder = get_folder(file_mod_date, 'x')
+        num_no_exif += 1        
+    elif date_time_orig_tag in tags:
+        folder = get_folder(tags[date_time_orig_tag], '')
     elif date_time_tag in tags:
-        folder = get_folder(tags[date_time_tag])
+        folder = get_folder(tags[date_time_tag], '')
     else:
-        folder = ['0000','0000-00']
+        folder = get_folder(file_mod_date, 'x')
 
     # create the folder if not present
     # copy the file
