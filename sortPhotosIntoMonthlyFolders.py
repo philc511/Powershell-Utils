@@ -2,6 +2,7 @@ from pathlib import Path
 from PIL import Image, ExifTags
 from shutil import copy2
 from datetime import datetime
+import re
 
 def info(f):
     img = Image.open(f)
@@ -37,11 +38,16 @@ for k, v in ExifTags.TAGS.items():
         date_time_orig_tag = k
     if v == 'DateTime':
         date_time_tag = k
+    if v == 'DateTimeDigitized':
+        date_time_digitized_tag = k
 
-root_source = 'F:/Cloudstation/Pictures/2004'
-#root_source = 'temp/source'
-#root_target = 'F:/Photos'
+#root_source = 'F:/Cloudstation/Pictures/2005'
+root_source = 'temp/source'
 root_target = 'temp/target'
+#root_target = 'F:/Photos'
+
+# Regexp to check kthat EXIF dates are valid
+p = re.compile('\d\d\d\d:\d\d.*')
 
 num_copied = 0
 num_not_copied = 0
@@ -59,10 +65,12 @@ for filename in Path(root_source).glob('**/*.*'):
     if tags is None:
         folder = get_folder(file_mod_date, 'x')
         num_no_exif += 1        
-    elif date_time_orig_tag in tags:
+    elif date_time_orig_tag in tags and p.match(tags[date_time_orig_tag]):
         folder = get_folder(tags[date_time_orig_tag], '')
-    elif date_time_tag in tags:
+    elif date_time_tag in tags and p.match(tags[date_time_tag]):
         folder = get_folder(tags[date_time_tag], '')
+    elif date_time_digitized_tag in tags and p.match(tags[date_time_digitized_tag]):
+        folder = get_folder(tags[date_time_digitized_tag], '')
     else:
         folder = get_folder(file_mod_date, 'x')
 
