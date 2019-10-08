@@ -31,22 +31,36 @@ def copy(filename, root_target, folder):
     copy2(filename, target)
     return 0
 
+def find_earliest_date_time_val(date_time_tags, valid_tag_pattern, tags):
+    date_times = []
+    for t in date_time_tags:
+        if t in tags and p.match(tags[t]):
+            date_times.append(tags[t])
+    for d in date_times:
+        print(d)
+    print(sorted(date_times))
 
+date_time_tags = []
 # find datetimeoriginal tag
 for k, v in ExifTags.TAGS.items():
     if v == 'DateTimeOriginal':
         date_time_orig_tag = k
+        date_time_tags.append(k)
     if v == 'DateTime':
         date_time_tag = k
+        date_time_tags.append(k)
+
     if v == 'DateTimeDigitized':
         date_time_digitized_tag = k
+        date_time_tags.append(k)
+
 
 #root_source = 'F:/Cloudstation/Pictures/2005'
 root_source = 'temp/source'
 root_target = 'temp/target'
 #root_target = 'F:/Photos'
 
-# Regexp to check kthat EXIF dates are valid
+# Regexp to check that EXIF dates are valid
 p = re.compile('\d\d\d\d:\d\d.*')
 
 num_copied = 0
@@ -67,6 +81,8 @@ for filename in Path(root_source).glob('**/*.*'):
     if debug:
         print(filename)
     ###
+
+    find_earliest_date_time_val(date_time_tags, p, tags)
 
     if tags is None:
         folder = get_folder(file_mod_date, 'x')
