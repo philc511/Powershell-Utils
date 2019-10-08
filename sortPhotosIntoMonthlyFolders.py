@@ -62,14 +62,27 @@ for filename in Path(root_source).glob('**/*.*'):
     except:
         tags = None
 
+    ###
+    debug = True
+    if debug:
+        print(filename)
+    ###
+
     if tags is None:
         folder = get_folder(file_mod_date, 'x')
         num_no_exif += 1        
     elif date_time_orig_tag in tags and p.match(tags[date_time_orig_tag]):
+        if debug:
+            print("dateTimeOriginal:" + tags[date_time_orig_tag])
         folder = get_folder(tags[date_time_orig_tag], '')
     elif date_time_tag in tags and p.match(tags[date_time_tag]):
+        if debug:
+            print("dateTime: " + tags[date_time_tag])
+            print("dateTimeDigitized: " + tags[date_time_digitized_tag])
         folder = get_folder(tags[date_time_tag], '')
     elif date_time_digitized_tag in tags and p.match(tags[date_time_digitized_tag]):
+        if debug:
+            print("dateTimeDigitized: " + tags[date_time_digitized_tag])
         folder = get_folder(tags[date_time_digitized_tag], '')
     else:
         folder = get_folder(file_mod_date, 'x')
