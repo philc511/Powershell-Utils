@@ -32,13 +32,18 @@ def copy(filename, root_target, folder):
     return 0
 
 def find_earliest_date_time_val(date_time_tags, valid_tag_pattern, tags):
+    if tags is None:
+        return None
+    
     date_times = []
     for t in date_time_tags:
         if t in tags and p.match(tags[t]):
             date_times.append(tags[t])
-    for d in date_times:
-        print(d)
-    print(sorted(date_times))
+        
+    if len(date_times) > 0:
+        return sorted(date_times)[0]
+
+    return None
 
 date_time_tags = []
 # find datetimeoriginal tag
@@ -82,26 +87,13 @@ for filename in Path(root_source).glob('**/*.*'):
         print(filename)
     ###
 
-    find_earliest_date_time_val(date_time_tags, p, tags)
+    first_date_time = find_earliest_date_time_val(date_time_tags, p, tags)
 
-    if tags is None:
+    if first_date_time is None:
         folder = get_folder(file_mod_date, 'x')
         num_no_exif += 1        
-    elif date_time_orig_tag in tags and p.match(tags[date_time_orig_tag]):
-        if debug:
-            print("dateTimeOriginal:" + tags[date_time_orig_tag])
-        folder = get_folder(tags[date_time_orig_tag], '')
-    elif date_time_tag in tags and p.match(tags[date_time_tag]):
-        if debug:
-            print("dateTime: " + tags[date_time_tag])
-            print("dateTimeDigitized: " + tags[date_time_digitized_tag])
-        folder = get_folder(tags[date_time_tag], '')
-    elif date_time_digitized_tag in tags and p.match(tags[date_time_digitized_tag]):
-        if debug:
-            print("dateTimeDigitized: " + tags[date_time_digitized_tag])
-        folder = get_folder(tags[date_time_digitized_tag], '')
     else:
-        folder = get_folder(file_mod_date, 'x')
+        folder = get_folder(first_date_time, '')
 
     # create the folder if not present
     # copy the file
