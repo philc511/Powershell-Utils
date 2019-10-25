@@ -3,6 +3,7 @@ from PIL import Image, ExifTags
 from shutil import copy2
 from datetime import datetime
 import re
+import os
 
 def info(f):
     img = Image.open(f)
@@ -25,10 +26,17 @@ def copy(filename, root_target, folder):
     target.mkdir(exist_ok=True)
     target = target / folder[1]
     target.mkdir(exist_ok=True)
-
-    if (target / filename.name).exists():
-        return 1
-    copy2(filename, target)
+    target_filename = target / filename.name
+    marker = 1
+    while (target_filename).exists():
+        source_size = os.path.getsize(filename)
+        target_size = os.path.getsize(target_filename)
+        if (source_size == target_size):
+            return 1
+        else:
+            target_filename = target / (target_filename.stem + '-(' + str(marker) +')' + target_filename.suffix)
+            marker += 1
+    copy2(filename, target_filename)
     return 0
 
 def find_earliest_date_time_val(date_time_tags, valid_tag_pattern, tags):
@@ -82,7 +90,7 @@ for filename in Path(root_source).glob('**/*.*'):
         tags = None
 
     ###
-    debug = True
+    debug = False
     if debug:
         print(filename)
     ###
