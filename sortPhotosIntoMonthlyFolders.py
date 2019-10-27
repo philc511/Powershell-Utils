@@ -68,8 +68,8 @@ for k, v in ExifTags.TAGS.items():
         date_time_tags.append(k)
 
 
-#root_source = 'F:/Cloudstation/Pictures/2005'
-root_source = 'temp/source'
+root_source = 'F:/Cloudstation/Pictures/2004'
+#root_source = 'temp/source'
 root_target = 'temp/target'
 #root_target = 'F:/Photos'
 
